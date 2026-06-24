@@ -3,3 +3,5 @@
 desuso/
 *.db
 *.session.sql
+**/__pycache__/
+*.pyc

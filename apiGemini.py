@@ -1,28 +1,17 @@
 from google import genai
 from google.genai import types
-import sqlite3
 import json
 import numpy as np
 
-client = genai.Client(api_key="AIzaSyCDyVyB_d8qtT0cbV7iGwGVx-zcxmMHE9A")
+import os
 
-def obter_matriz_similaridade():
+#teste 
+from database import extrair_artigos
 
-    conn = sqlite3.connect('biblioteca_completa.db')
-    cursor = conn.cursor()
-    
-    # O comando GROUP_CONCAT junta todas as referências do artigo em uma única string
-    query = """
-        SELECT a.id, a.title, a.keywords, a.abstract, GROUP_CONCAT(r.reference_text, '; ')
-        FROM articles a
-        LEFT JOIN article_references r ON a.id = r.article_id
-        GROUP BY a.id
-    """
-    cursor.execute(query)
-    artigos = cursor.fetchall()
-    conn.close()
+client = genai.Client(api_key = os.environ.get("GEMINI_API_KEY"))
 
-    # 3. Preparar o contexto estruturado
+def obter_matriz_similaridade(artigos):
+
     referencias_texto = ""
     for a in artigos:
         referencias_texto += f"ID {a[0]} | TÍTULO: {a[1]}\nKEYWORDS: {a[2]}\nABSTRACT: {a[3]}\nREFERÊNCIAS: {a[4]}\n---\n"
@@ -47,10 +36,10 @@ def obter_matriz_similaridade():
 
     # 5. Gerar conteúdo forçando o MIME Type para JSON
     response = client.models.generate_content(
-        model="gemini-3-flash-preview", # ou gemini-1.5-pro para análises mais complexas
+        model="gemini-3-flash-preview", # ou gemini-1.5-pro para análises mais complexas ou gemini-3-flesh-preview
         contents=prompt,
         config=types.GenerateContentConfig(
-            response_mime_type="application/json" # Força a IA a cuspir apenas dados puros
+            response_mime_type="application/json" 
         )
     )
 
@@ -63,18 +52,18 @@ def obter_matriz_similaridade():
         return None
 
 # --- Como usar a variável no seu código principal ---
-if __name__ == "__main__":
-    print("Enviando dados para o Gemini processar a matriz...\n")
+# if __name__ == "__main__":
+#     print("Enviando dados para o Gemini processar a matriz...\n")
     
-    # A MÁGICA ACONTECE AQUI: O retorno da função vai direto para a variável
-    minha_matriz_variavel = obter_matriz_similaridade()
+#     # A MÁGICA ACONTECE AQUI: O retorno da função vai direto para a variável
+#     minha_matriz_variavel = obter_matriz_similaridade()
     
-    if minha_matriz_variavel:
-        print("Sucesso! A matriz foi armazenada na variável.")
-        print(f"Tipo da variável: {type(minha_matriz_variavel)}") # Vai imprimir <class 'list'>
+#     if minha_matriz_variavel:
+#         print("Sucesso! A matriz foi armazenada na variável.")
+#         print(f"Tipo da variável: {type(minha_matriz_variavel)}") # Vai imprimir <class 'list'>
         
-        # Como você curte Data Science, pode jogar direto pro Numpy!
-        matriz_numpy = np.array(minha_matriz_variavel)
+#         # Como você curte Data Science, pode jogar direto pro Numpy!
+#         matriz_numpy = np.array(minha_matriz_variavel)
         
-        print("\nMatriz formatada:")
-        print(matriz_numpy)
+#         print("\nMatriz formatada:")
+#         print(matriz_numpy)
