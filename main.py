@@ -15,6 +15,10 @@ def executar_pipeline_visualizacao():
     artigos = extrair_artigos()
 
     matrizSimilaridade = obter_matriz_similaridade(artigos)
+
+    for x in matrizSimilaridade:
+        print (x)
+    #print(matrizSimilaridade)
     
     print("3. Renderizando os gráficos...")
     gerar_graficos_dispersao(resultados_2d, y, matrizSimilaridade = matrizSimilaridade)
