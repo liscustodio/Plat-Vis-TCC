@@ -1,9 +1,10 @@
 from database import extrair_matriz_binaria
 from database import extrair_artigos
-
 from mathEngine import reduzir_dimensionalidade
 from plotEngine import gerar_graficos_dispersao
 from apiGemini import obter_matriz_similaridade
+from shiny import App, ui
+from shinywidgets import output_widget, render_widget
 
 def executar_pipeline_visualizacao():
     print("1. Conectando ao banco e extraindo dados binários...")
@@ -21,32 +22,36 @@ def executar_pipeline_visualizacao():
 
     matrizSimilaridade = obter_matriz_similaridade(artigos)
 
-    # matrizSimilaridade = [
-    #     [100, 30, 20, 10, 35, 5, 5, 5, 5, 5, 10, 5, 15, 10, 5],
-    #     [30, 100, 50, 40, 45, 5, 5, 5, 5, 5, 10, 5, 20, 10, 5],
-    #     [20, 50, 100, 60, 40, 5, 5, 5, 5, 5, 10, 5, 15, 5, 5],
-    #     [10, 40, 60, 100, 30, 5, 5, 5, 5, 5, 5, 5, 10, 5, 5], 
-    #     [35, 45, 40, 30, 100, 5, 5, 5, 5, 5, 5, 5, 10, 5, 5],
-    #     [5, 5, 5, 5, 5, 100, 70, 85, 60, 70, 2, 2, 2, 2, 2],
-    #     [5, 5, 5, 5, 5, 70, 100, 65, 40, 60, 2, 2, 2, 2, 2],
-    #     [5, 5, 5, 5, 5, 85, 65, 100, 30, 85, 2, 2, 2, 2, 2],
-    #     [5, 5, 5, 5, 5, 60, 40, 30, 100, 30, 2, 2, 2, 2, 2],
-    #     [5, 5, 5, 5, 5, 70, 60, 85, 30, 100, 2, 2, 2, 2, 2],
-    #     [10, 10, 10, 5, 5, 2, 2, 2, 2, 2, 100, 35, 45, 55, 20],
-    #     [5, 5, 5, 5, 5, 2, 2, 2, 2, 2, 35, 100, 30, 25, 85],
-    #     [15, 20, 15, 10, 10, 2, 2, 2, 2, 2, 45, 30, 100, 40, 15],
-    #     [10, 10, 5, 5, 5, 2, 2, 2, 2, 2, 55, 25, 40, 100, 20],
-    #     [5, 5, 5, 5, 5, 2, 2, 2, 2, 2, 20, 85, 15, 20, 100]
-    # ]
-
     for x in matrizSimilaridade:
         print (x)
     #print(matrizSimilaridade)
     
     print("3. Renderizando os gráficos...")
     gerar_graficos_dispersao(resultados_2d, y, matrizSimilaridade = matrizSimilaridade)
-    
+
     print("Pipeline concluído com sucesso!")
 
-if __name__ == "__main__":
-    executar_pipeline_visualizacao()
+app_ui = ui.page_fluid(
+    ui.h2("Análise de Artigos"),
+    output_widget("grafico")
+)
+
+def server(input, output, session):
+    
+    @output
+    @render_widget
+    def grafico():
+        X, y = extrair_matriz_binaria()
+        resultados_2d = reduzir_dimensionalidade(X)
+        artigos = extrair_artigos()
+        matrizSimilaridade = obter_matriz_similaridade(artigos)
+        print("chamada bem sucedida") 
+
+        fig = gerar_graficos_dispersao(resultados_2d, y, matrizSimilaridade = matrizSimilaridade)
+
+        return fig
+
+#if __name__ == "__main__":
+    #executar_pipeline_visualizacao()
+    
+app = App(app_ui, server)

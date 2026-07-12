@@ -83,7 +83,7 @@ def gerar_graficos_dispersao(results, y, matrizSimilaridade=None):
         title_x=0.5,
         hovermode='closest'
     )
-    fig.show()
+    return fig
 
 
 

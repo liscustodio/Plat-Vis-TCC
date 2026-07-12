@@ -8,9 +8,10 @@ import os
 #teste 
 from database import extrair_artigos
 
-client = genai.Client(api_key = os.environ.get("GEMINI_API_KEY"))
-
 def obter_matriz_similaridade(artigos):
+
+    
+    client = genai.Client(api_key = "")
 
     referencias_texto = ""
     for a in artigos:
