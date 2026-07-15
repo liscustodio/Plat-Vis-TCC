@@ -35,14 +35,17 @@ def obter_matriz_similaridade(artigos):
     {referencias_texto}
     """
 
-    # 5. Gerar conteúdo forçando o MIME Type para JSON
-    response = client.models.generate_content(
-        model="gemini-3-flash-preview", # ou gemini-1.5-pro para análises mais complexas ou gemini-3-flesh-preview
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json" 
+    try:
+        # 5. Gerar conteúdo forçando o MIME Type para JSON
+        response = client.models.generate_content(
+            model="gemini-3-flash-previews", # ou gemini-1.5-pro para análises mais complexas ou gemini-3-flesh-preview
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json" 
+            )
         )
-    )
+    except Exception as e:
+        print(f"Erro na chamada: {e}")
 
     try:
         matriz_python = json.loads(response.text)
@@ -51,20 +54,3 @@ def obter_matriz_similaridade(artigos):
         print("Erro: A IA não retornou um JSON válido.")
         print("Retorno bruto:", response.text)
         return None
-
-# --- Como usar a variável no seu código principal ---
-# if __name__ == "__main__":
-#     print("Enviando dados para o Gemini processar a matriz...\n")
-    
-#     # A MÁGICA ACONTECE AQUI: O retorno da função vai direto para a variável
-#     minha_matriz_variavel = obter_matriz_similaridade()
-    
-#     if minha_matriz_variavel:
-#         print("Sucesso! A matriz foi armazenada na variável.")
-#         print(f"Tipo da variável: {type(minha_matriz_variavel)}") # Vai imprimir <class 'list'>
-        
-#         # Como você curte Data Science, pode jogar direto pro Numpy!
-#         matriz_numpy = np.array(minha_matriz_variavel)
-        
-#         print("\nMatriz formatada:")
-#         print(matriz_numpy)
